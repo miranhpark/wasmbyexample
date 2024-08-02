@@ -2,41 +2,19 @@
 // Import the wasm-bindgen crate.
 use wasm_bindgen::prelude::*;
 
-// Create a static mutable byte buffer.
-// We will use for passing memory between js and wasm.
-// NOTE: global `static mut` means we will have "unsafe" code
-// but for passing memory between js and wasm should be fine.
-const WASM_MEMORY_BUFFER_SIZE: usize = 2;
-static mut WASM_MEMORY_BUFFER: [u8; WASM_MEMORY_BUFFER_SIZE] = [0; WASM_MEMORY_BUFFER_SIZE];
-
-// Function to store the passed value at index 0,
-// in our buffer
+// Let's define our external function (imported from JS)
+// Here, we will define our external `console.log`
 #[wasm_bindgen]
-pub fn store_value_in_wasm_memory_buffer_index_zero(value: u8) {
-    unsafe {
-        WASM_MEMORY_BUFFER[0] = value;
-    }
+extern "C" {
+    // Use `js_namespace` here to bind `console.log(..)` instead of just
+    // `log(..)`
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }
 
-// Function to return a pointer to our buffer
-// in wasm memory
+// Export a function that will be called in JavaScript
+// but call the "imported" console.log.
 #[wasm_bindgen]
-pub fn get_wasm_memory_buffer_pointer() -> *const u8 {
-    let pointer: *const u8;
-    unsafe {
-        pointer = WASM_MEMORY_BUFFER.as_ptr();
-    }
-
-    return pointer;
-}
-
-// Function to read from index 1 of our buffer
-// And return the value at the index
-#[wasm_bindgen]
-pub fn read_wasm_memory_buffer_and_return_index_one() -> u8 {
-    let value: u8;
-    unsafe {
-        value = WASM_MEMORY_BUFFER[1];
-    }
-    return value;
+pub fn console_log_from_wasm() {
+    log("This console.log is from wasm!");
 }
