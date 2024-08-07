@@ -1,2 +1,3 @@
 /target
 .DS_Store
+wasi_hello_world/target
